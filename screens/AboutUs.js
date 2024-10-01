@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useRef, useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, Dimensions, Linking, TouchableOpacity, TextInput, Button, Alert } from 'react-native';
 import { WebView } from 'react-native-webview';
 import MapView, { Marker } from 'react-native-maps';
@@ -10,6 +10,11 @@ import 'firebase/auth';
 import { getAuth } from 'firebase/auth';
 import * as Location from 'expo-location'; 
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Image } from 'react-native';
+import { gsap, Back } from 'gsap-rn';
+import { Ionicons } from '@expo/vector-icons';
+import moment from 'moment';
+
 
 const AboutUs = () => {
   const [user, setuser] = useState({})
@@ -22,6 +27,7 @@ const AboutUs = () => {
   const [userLocation, setUserLocation] = useState(null); 
   const [userAlreadyReviewed, setuserAlreadyReviewed] = useState(false)
   const [userReviewDoc, setuserReviewDoc] = useState('')
+  const viewRef = useRef(null);
 
 
   const fetchRatingsAndReviews = async () => {
@@ -146,24 +152,33 @@ const AboutUs = () => {
       Alert.alert('Error submitting review and rating. Please try again later.');
     }
   };
+  useEffect(() => {
+    const view = viewRef.current;
+    gsap.to(view, { duration: 1, transform: { rotate: 360, scale: 1 }, ease: Back.easeInOut });
+  }, []);
 
   return (
     <View style={styles.container}>
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView style={{ backgroundColor: '#fff', height: '100%' }} showsVerticalScrollIndicator={false}>
+        <Image
+           ref={viewRef}
+          style={styles.logo}
+          source={require('../assets/L2.png')}
+        />
         <Text style={styles.heading}>Cinemawala </Text>
 
           {/* Display Introduction */}
-          <Text style={styles.subHeading}>Introduction</Text>
+          <Text style={styles.subHeading}>About Us</Text>
         <Text style={styles.paragraph}>
-          Welcome to PetEmote, where we bring the world of emotions closer to your furry companions!
+        Cinemawala is your go-to app for honest and insightful movie reviews. We help you discover the best films, powered by a community of passionate movie lovers.
         </Text>
 
            {/* Display Contact Information */}
            <Text style={styles.subHeading}>Contact Information</Text>
         <Text style={styles.paragraph}>
-          Email: aurnob.shanewaz@gmail.com.{'\n'}
-          Phone: +8801685-530730{'\n'}
-          Address: 1no Gate of Chittagong University, Chittagong, Bangladesh.
+          Email: souravtalukdar2017@gmail.com{'\n'}
+          Phone: +8801866320055{'\n'}
+          Address:Chittagong University, Chittagong, Bangladesh.
         </Text>
 
 
@@ -272,108 +287,146 @@ const AboutUs = () => {
 };
 
 const styles = StyleSheet.create({
+  
+  logo: {
+    alignSelf: 'center',
+    height: 150,
+    width: 200,
+    marginBottom: 20,
+    marginTop: 30
+  },
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#f9f9f9', // Softer background
     paddingHorizontal: 20,
   },
+  
   heading: {
-    fontSize: 26,
+    fontSize: 28,
     fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#0066cc', 
+    marginBottom: 15,
+    color: '#09d3ed', // Darker, neutral color
     paddingTop: 30,
-  },
-  videoContainer: {
-    marginBottom: 20,
+    textAlign: 'center', // Center the heading
   },
   subHeading: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    marginVertical: 12,
-    color: '#28a745'
-  },
-  video: {
-    height: 200,
-    width: Dimensions.get('window').width - 40,
-  },
-  mapContainer: {
-    backgroundColor: 'white',
-    marginVertical: 10,
-    padding: 10,
-    
-    borderColor: '#e80505',
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  map: {
-    height: 200,
-    borderRadius: 10,
+    fontSize: 20,
+    fontWeight: '600',
+    marginVertical: 15,
+    color: '#2c3e50',
+    textAlign: 'left',
   },
   paragraph: {
     fontSize: 16,
-    marginBottom: 12,
+    marginBottom: 20,
+    lineHeight: 22, // Better readability with line height
+    color: '#7f8c8d',
   },
-  socialMediaContainer: {
-    marginTop: 20,
+  mapContainer: {
+    backgroundColor: '#fff',
+    marginVertical: 20,
+    padding: 15,
+    borderColor: '#dfe6e9', // Light border for clarity
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 5,
   },
-  socialMediaLinks: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  map: {
+    height: 200,
+    borderRadius: 12,
   },
-  icon: {
-    marginHorizontal: 10,
+  videoContainer: {
+    marginBottom: 25,
+    backgroundColor: '#fff',
+    padding: 10,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
   },
-  ratingContainer: {
-    marginTop: 20,
-    alignItems: 'left',
+  video: {
+    height: 200,
+    borderRadius: 10,
+    overflow: 'hidden', // Smooth edges for the video
+    width: '100%', // Ensure the video takes up full width
   },
   starsContainer: {
     flexDirection: 'row',
+    marginVertical: 10,
+    justifyContent: 'center', // Center the stars
   },
   starIcon: {
-    marginHorizontal: 5,
-  },
-  submitButton: {
-    marginTop: 10,
-    fontSize: 18,
-    color: '#007bff', 
-    textDecorationLine: 'underline',
+    marginHorizontal: 3,
   },
   reviewContainer: {
     marginTop: 20,
     alignItems: 'center',
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
   },
   reviewInput: {
     height: 100,
-    borderColor: 'gray',
+    borderColor: '#dfe6e9',
     borderWidth: 1,
-    marginTop: 10,
+    borderRadius: 10, // Rounder input box
     padding: 10,
     textAlignVertical: 'top',
     width: '100%',
+    backgroundColor: '#fff', // Background for input
   },
   reviewsContainer: {
     marginTop: 20,
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
   },
   reviewItem: {
-    marginBottom: 10,
+    marginBottom: 15,
     borderBottomWidth: 1,
-    borderBottomColor: '#ccc',
+    borderBottomColor: '#dfe6e9',
     paddingBottom: 10,
   },
   reviewRating: {
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 5,
+    color: '#e74c3c', // Red to highlight user names
   },
   reviewText: {
     fontSize: 14,
+    color: '#2c3e50', // Darker text for clarity
+    lineHeight: 20, // Better readability for reviews
   },
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export default AboutUs;
