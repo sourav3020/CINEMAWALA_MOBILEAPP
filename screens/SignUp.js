@@ -11,6 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 
 export default function SignUp({ navigation }) {
+  const [yourName, setYourName] = useState('');
   const [userName, setUserName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,6 +19,7 @@ export default function SignUp({ navigation }) {
   const [errorMessage, setErrorMessage] = useState('');
   const [userNameErrorMessage, setUserNameErrorMessage] = useState(['', '']);
   const [emailErrorMessage, setEmailErrorMessage] = useState(['', '']);
+  const [country, setCountry] = useState('');
   const [birthDate, setBirthDate] = useState(moment(new Date()).format('DD/MM/YYYY'));
   const [birthDateModalStatus, setBirthDateModalStatus] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -46,6 +48,8 @@ export default function SignUp({ navigation }) {
     setPassword('');
     setConfirmPassword('');
     setUserName('');
+    setYourName('');
+    setCountry('');
     setBirthDate('');
     setUserNameErrorMessage(['', '']);
   };
@@ -106,12 +110,16 @@ export default function SignUp({ navigation }) {
     const usersRef = collection(firestore, 'users');
     try {
       const docRef = await addDoc(usersRef, {
+        "yourName": yourName, // Save user's name
         "userName": userName,
         "email": email,
+        "country": country, // Save user's country
         "dp_url": "images/avatar.jpg",
         "joiningDate": Timestamp.fromDate(new Date()),
         'birthday': birthDate,
         "user_id": '' // This will be updated later
+        
+        
       });
   
       // Chain the update operation after the document is added
@@ -173,6 +181,17 @@ export default function SignUp({ navigation }) {
         />
         <TextInput
           style={styles.input}
+          placeholder="First and Last Name"
+          placeholderTextColor="#aaaaaa"
+          onChangeText={(text) => {
+          setYourName(text.trim())
+          }}
+          value={yourName}
+          underlineColorAndroid="transparent"
+          autoCapitalize="none"
+        />
+        <TextInput
+          style={styles.input}
           placeholderTextColor="#aaaaaa"
           placeholder='User Name'
           onChangeText={(text) => {
@@ -225,7 +244,15 @@ export default function SignUp({ navigation }) {
             </TouchableOpacity>
           </View>
         }
-
+        <TextInput
+          style={styles.input}
+          placeholder='Country' // New field for country
+          placeholderTextColor="#aaaaaa"
+          onChangeText={(text) => setCountry(text.trim())} // Set the country state
+          value={country}
+          underlineColorAndroid="transparent"
+          autoCapitalize="none"
+        />
         {showMultipleTextBox &&
           <TouchableOpacity
             style={styles.birthdayPicker}
@@ -265,6 +292,10 @@ export default function SignUp({ navigation }) {
             setAllNone();
             navigation.navigate('LogIn');
           }} style={styles.footerLink}>Log In</Text></Text>
+          <Text onPress={() => {
+            setAllNone();
+            navigation.navigate('AboutUs');
+          }} style={styles.footerLink}>About Us</Text>
         </View>
       </ScrollView>
     </View>
@@ -273,13 +304,10 @@ export default function SignUp({ navigation }) {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#fff'
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: '600',
-    fontStyle: 'italic',
-    marginBottom: 20
+    flex: 1,
+        justifyContent: 'center',
+        padding: 10,
+        
   },
   logo: {
     alignSelf: 'center',
@@ -288,17 +316,22 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     marginTop: 30
   },
+  title: {
+    fontSize: 50,
+    fontWeight: '600',
+    textAlign: 'center',
+    marginBottom: 20
+  },
+  
   input: {
-    height: 48,
-    borderRadius: 5,
-    overflow: 'hidden',
-    backgroundColor: '#f0f0f0',
-    color: '#5591ad',
-    marginTop: 10,
-    marginBottom: 10,
-    marginLeft: 15,
-    marginRight: 15,
-    paddingLeft: 16
+    height: 50,
+    width: '100%',
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 8,
+    marginBottom: 20,
+    paddingHorizontal: 10,
+     backgroundColor: '#fff',
   },
   birthdayPicker: {
     height: 48,
@@ -338,10 +371,11 @@ const styles = StyleSheet.create({
     color: '#2e2e2d'
   },
   footerLink: {
-    color: "#e80505",
+    color: "blue",
     fontWeight: "bold",
     fontSize: 16
   },
+  
   passwordContainer: {
     flexDirection: 'row',
     alignItems: 'center',     

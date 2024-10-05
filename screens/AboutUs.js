@@ -160,12 +160,13 @@ const AboutUs = () => {
   return (
     <View style={styles.container}>
       <ScrollView style={{ backgroundColor: '#fff', height: '100%' }} showsVerticalScrollIndicator={false}>
+         {/* Display logo with gsap*/}
         <Image
            ref={viewRef}
           style={styles.logo}
           source={require('../assets/L2.png')}
         />
-        <Text style={styles.heading}>Cinemawala </Text>
+        {/* <Text style={styles.heading}>Cinemawala </Text> */}
 
           {/* Display Introduction */}
           <Text style={styles.subHeading}>About Us</Text>
@@ -218,12 +219,6 @@ const AboutUs = () => {
 
      
 
-        {/* Display FAQs */}
-        {/* <Text style={styles.subHeading}>FAQs</Text>
-        <Text style={styles.paragraph}>
-          Q: What is PetEmote?{'\n'}
-          A: PetEmote is a revolutionary app that helps you understand your pet's emotions better.
-        </Text> */}
 
         {/* Display Ratings and Reviews */}
         {/* <View style={styles.ratingContainer}>
