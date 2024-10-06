@@ -1,7 +1,5 @@
 import React, { Component } from "react";
 import { View, Text, StatusBar, TextInput, TouchableOpacity, ScrollView, Image, ActivityIndicator, Alert } from "react-native";
-import { createStackNavigator } from '@react-navigation/stack';
-import { NavigationContainer } from '@react-navigation/native';
 
 // Constants
 const BASE_URL = "https://api.themoviedb.org/3/";
@@ -11,6 +9,7 @@ const PLACEHOLDER_IMAGE = "https://s3-ap-southeast-1.amazonaws.com/popcornsg/pla
 const PLACEHOLDER = "Enter movie title...";
 const SEARCH_BUTTON = "Search";
 const NO_DATA_MSG = "No data found.";
+const MOVIES_PER_PAGE = 3; // Movies per page
 
 // Styles
 const styles = {
@@ -25,6 +24,9 @@ const styles = {
   movieDetails: { flex: 1 },
   movieTitle: { fontSize: 16, fontWeight: 'bold' },
   movieText: { color: '#555' },
+  pagination: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 },
+  paginationButton: { backgroundColor: '#02ADAD', padding: 10, borderRadius: 5 },
+  paginationButtonText: { color: '#fff', fontSize: 14 },
 };
 
 // Fetching helper function
@@ -44,6 +46,7 @@ class HomeScreen extends Component {
     searchText: "",
     isLoading: false,
     noData: false,
+    currentPage: 1, // Track the current page
   };
 
   searchMovies = () => {
@@ -59,9 +62,21 @@ class HomeScreen extends Component {
 
   searchCallback = (response) => {
     if (response.results && response.results.length) {
-      this.setState({ movieList: response.results, noData: false, isLoading: false });
+      this.setState({ movieList: response.results, noData: false, isLoading: false, currentPage: 1 });
     } else {
       this.setState({ movieList: [], noData: true, isLoading: false });
+    }
+  };
+
+  // Handle Previous and Next pagination
+  handlePagination = (direction) => {
+    const { currentPage, movieList } = this.state;
+    const totalPages = Math.ceil(movieList.length / MOVIES_PER_PAGE);
+
+    if (direction === "next" && currentPage < totalPages) {
+      this.setState({ currentPage: currentPage + 1 });
+    } else if (direction === "prev" && currentPage > 1) {
+      this.setState({ currentPage: currentPage - 1 });
     }
   };
 
@@ -70,12 +85,15 @@ class HomeScreen extends Component {
   };
 
   render() {
-    const { movieList, isLoading, noData } = this.state;
+    const { movieList, isLoading, noData, currentPage } = this.state;
+    const startIndex = (currentPage - 1) * MOVIES_PER_PAGE;
+    const paginatedMovies = movieList.slice(startIndex, startIndex + MOVIES_PER_PAGE);
+    const totalPages = Math.ceil(movieList.length / MOVIES_PER_PAGE);
 
     return (
       <View style={styles.container}>
         <StatusBar backgroundColor="#02ADAD" barStyle="light-content" />
-        
+
         <View style={styles.cardView}>
           <TextInput
             style={styles.input}
@@ -88,11 +106,11 @@ class HomeScreen extends Component {
         </View>
 
         {isLoading && <ActivityIndicator size="large" color="#02ADAD" />}
-        
+
         {noData && <Text style={{ textAlign: 'center' }}>{NO_DATA_MSG}</Text>}
 
         <ScrollView style={styles.movieList}>
-          {movieList.map((movie, index) => (
+          {paginatedMovies.map((movie, index) => (
             <TouchableOpacity key={index} onPress={() => this.goToDetails(movie)} style={styles.movieItem}>
               <Image
                 source={{
@@ -111,6 +129,25 @@ class HomeScreen extends Component {
             </TouchableOpacity>
           ))}
         </ScrollView>
+
+        {movieList.length > MOVIES_PER_PAGE && (
+          <View style={styles.pagination}>
+            <TouchableOpacity
+              style={styles.paginationButton}
+              onPress={() => this.handlePagination("prev")}
+              disabled={currentPage === 1}
+            >
+              <Text style={styles.paginationButtonText}>Previous</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.paginationButton}
+              onPress={() => this.handlePagination("next")}
+              disabled={currentPage === totalPages}
+            >
+              <Text style={styles.paginationButtonText}>Next</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     );
   }
