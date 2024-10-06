@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, FlatList, Image, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, FlatList, Image, StyleSheet, ScrollView } from 'react-native';
 import { firestore } from '../config'; // Ensure you import firestore
 import { collection, query, where, getDocs, setDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -8,56 +8,30 @@ const IMAGE_URL = "http://image.tmdb.org/t/p/w185";
 const PLACEHOLDER_IMAGE = "https://s3-ap-southeast-1.amazonaws.com/popcornsg/placeholder-movieimage.png";
 
 const MovieDetailScreen = ({ route }) => {
-    const { movie } = route.params; // Get movie data from route params
+    const { movie } = route.params;
 
     const [reviewText, setReviewText] = useState('');
     const [reviews, setReviews] = useState([]);
     const [userName, setUserName] = useState('');
     const [likes, setLikes] = useState(0);
     const [dislikes, setDislikes] = useState(0);
-    const [userReaction, setUserReaction] = useState(null); // Track user's reaction
-    const [user, setuser] = useState({})
+    const [userReaction, setUserReaction] = useState(null);
 
     useEffect(() => {
         fetchReviews(movie.id);
-        fetchLikesDislikes(movie.id); // Fetch initial like/dislike counts
+        fetchLikesDislikes(movie.id);
     }, [movie.id]);
 
     useEffect(() => {
         const getUser = async () => {
-          const userData = await AsyncStorage.getItem('userData');
-          console.log(userData)
-          setUserName(userData.userName)
-          return;
-          if(userData){
-            const user = JSON.parse(userData);
-            setuser(user)
-          }
-          else{
-            const usersRef = collection(firestore, "users");
-            const q = query(usersRef, where("email", "==", auth.currentUser.email));
-            const querySnapshot = await getDocs(q);
-            querySnapshot.forEach((doc) => {
-                const userData = doc.data();
-                // console.log(userData)
-                const { userName, user_id, email, dp_url } = userData;
-                const loggedUserInfo = {
-                    userRef: user_id,
-                    userEmail: email,
-                    userName: userName,
-                      userProfilePic: dp_url
-                };
-                setUserName(userName)
-              }
-            );
-          }
-        }
-        getUser()
-      }, [])
-    
-      useEffect(() => {
-       // fetchRatingsAndReviews()
-      }, [user])
+            const userDataString = await AsyncStorage.getItem('userData');
+            if (userDataString) {
+                const userData = JSON.parse(userDataString);
+                setUserName(userData.userName);
+            }
+        };
+        getUser();
+    }, []);
 
     const fetchReviews = async (movieId) => {
         try {
@@ -99,39 +73,29 @@ const MovieDetailScreen = ({ route }) => {
                         release_date: movie.release_date,
                         overview: movie.overview,
                         poster_path: movie.poster_path,
-                        likes: 0, // Initialize likes
-                        dislikes: 0, // Initialize dislikes
+                        likes: 0,
+                        dislikes: 0,
                     };
                     await setDoc(movieDocRef, movieData);
                 }
 
                 const reviewDocId = `${movie.id}_${Date.now()}`;
                 const userDataString = await AsyncStorage.getItem('userData');
-                console.log(userDataString); // Logs the raw string
-                
-                // Parse the userData to get the userName
+
                 let userName;
                 if (userDataString) {
-                    const userData = JSON.parse(userDataString); // Parse the JSON string
-                    userName = userData.userName; // Access the userName property
-                    console.log('Fetched userData:', userData); // Log the entire userData object
-                } else {
-                    console.log('No user data found in AsyncStorage');
+                    const userData = JSON.parse(userDataString);
+                    userName = userData.userName;
                 }
-                
-                // Create reviewData with the fetched userName
+
                 const reviewData = {
                     movieId: movie.id,
                     review: reviewText,
-                    userName: userName, // Use the userName from the parsed userData
+                    userName: userName,
                     timestamp: new Date().toISOString(),
                 };
-                
-
-                console.log(reviewData)
 
                 await setDoc(doc(firestore, 'mreviews', reviewDocId), reviewData);
-                
                 Alert.alert('Review Posted', `Your review: "${reviewText}"`);
                 setReviewText('');
                 fetchReviews(movie.id);
@@ -148,6 +112,26 @@ const MovieDetailScreen = ({ route }) => {
         try {
             const movieDocRef = doc(firestore, 'movies', movie.id.toString());
 
+            // Check if the document exists
+            const movieDoc = await getDoc(movieDocRef);
+            if (!movieDoc.exists()) {
+                // If it doesn't exist, create the movie document with initial data
+                const movieData = {
+                    id: movie.id,
+                    title: movie.original_title,
+                    release_date: movie.release_date,
+                    overview: movie.overview,
+                    poster_path: movie.poster_path,
+                    likes: 1, // Initially setting the like to 1
+                    dislikes: 0,
+                };
+                await setDoc(movieDocRef, movieData);
+                setLikes(1); // Update local state
+                setUserReaction('like');
+                return;
+            }
+
+            // Document exists, proceed with updating likes
             if (userReaction === 'like') {
                 Alert.alert('You already liked this movie');
                 return;
@@ -175,6 +159,26 @@ const MovieDetailScreen = ({ route }) => {
         try {
             const movieDocRef = doc(firestore, 'movies', movie.id.toString());
 
+            // Check if the document exists
+            const movieDoc = await getDoc(movieDocRef);
+            if (!movieDoc.exists()) {
+                // If it doesn't exist, create the movie document with initial data
+                const movieData = {
+                    id: movie.id,
+                    title: movie.original_title,
+                    release_date: movie.release_date,
+                    overview: movie.overview,
+                    poster_path: movie.poster_path,
+                    likes: 0,
+                    dislikes: 1, // Initially setting the dislike to 1
+                };
+                await setDoc(movieDocRef, movieData);
+                setDislikes(1); // Update local state
+                setUserReaction('dislike');
+                return;
+            }
+
+            // Document exists, proceed with updating dislikes
             if (userReaction === 'dislike') {
                 Alert.alert('You already disliked this movie');
                 return;
@@ -200,13 +204,13 @@ const MovieDetailScreen = ({ route }) => {
 
     const renderReviewItem = ({ item }) => (
         <View style={styles.reviewItem}>
-            <Text style={{ fontWeight: 'bold' }}>{item.userName}:</Text> 
+            <Text style={{ fontWeight: 'bold' }}>{item.userName}:</Text>
             <Text>{item.review}</Text>
         </View>
     );
 
     return (
-        <View style={styles.container}>
+        <ScrollView style={styles.container}>
             <Image
                 source={{
                     uri: movie.poster_path
@@ -225,7 +229,6 @@ const MovieDetailScreen = ({ route }) => {
                 <Text style={{ fontWeight: 'bold' }}>Overview:</Text> {movie.overview}
             </Text>
 
-            {/* Like/Dislike Buttons */}
             <View style={styles.likeButton}>
                 <TouchableOpacity onPress={handleLike}>
                     <Text style={styles.buttonText}>👍 Like</Text>
@@ -254,42 +257,38 @@ const MovieDetailScreen = ({ route }) => {
                 Username: {userName || 'Guest'}
             </Text>
 
-            <Text style={{ fontWeight: 'bold', marginTop: 20 }}>Reviews:</Text>
             <FlatList
                 data={reviews}
                 renderItem={renderReviewItem}
-                keyExtractor={(item) => item.id}
-                style={{ marginTop: 10 }}
+                keyExtractor={(item) => item.id.toString()}
+                contentContainerStyle={styles.reviewList}
             />
-        </View>
+        </ScrollView>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         padding: 20,
-        backgroundColor: '#f0f0f0',
     },
     movieImage: {
         width: '100%',
-        height: 300,
-        resizeMode: 'cover',
+        height: 400,
+        resizeMode: 'contain',
     },
     text: {
-        fontSize: 16,
-        marginVertical: 5,
+        marginTop: 10,
     },
     input: {
-        height: 100,
-        borderColor: 'gray',
         borderWidth: 1,
-        marginVertical: 10,
+        borderColor: '#ccc',
         padding: 10,
-        textAlignVertical: 'top',
+        marginVertical: 10,
+        borderRadius: 5,
+        minHeight: 100,
     },
     buttonContainer: {
-        backgroundColor: '#02ADAD',
+        backgroundColor: '#007bff',
         padding: 10,
         borderRadius: 5,
         alignItems: 'center',
@@ -301,16 +300,19 @@ const styles = StyleSheet.create({
     likeButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginVertical: 5,
+        marginTop: 10,
     },
     likeText: {
         marginLeft: 10,
     },
     reviewItem: {
-        marginVertical: 5,
-        padding: 10,
-        backgroundColor: '#fff',
-        borderRadius: 5,
+        marginVertical: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
+        paddingBottom: 10,
+    },
+    reviewList: {
+        paddingVertical: 20,
     },
 });
 

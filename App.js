@@ -3,7 +3,6 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import SignUp from './screens/SignUp';
 import HomeScreen from './screens/HomeScreen';
-import ViewPosts from './screens/ViewPosts';
 import AppNavigator from './screens/AppNavigator';
 import AboutUs from './screens/AboutUs';
 import LoginScreen from './screens/LogIn';
@@ -31,7 +30,7 @@ export default function App() {
         <Stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
         <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
         <Stack.Screen name="MovieDetail" component={MovieDetailScreen} options={{ title: 'Movie Details' }} />
-        <Stack.Screen name="ViewPosts" component={ViewPosts} options={{ headerShown: false }} />
+        
         <Stack.Screen name='CountryInfo' component={CountryInfo}></Stack.Screen>
       </Stack.Navigator>
     </NavigationContainer>

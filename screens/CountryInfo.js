@@ -29,7 +29,7 @@ const CountryInfo = () => {
   return (
     <View contentContainerStyle={styles.container}>
       {countries.map((country, index) => (
-        <View key={index} style={styles.countryContainer}>
+          <View key={index} style={styles.countryContainer}>
           <Text style={styles.heading}>Country Name:</Text>
           <Text style={styles.text}>{country.name}</Text>
           <Text style={styles.heading}>Capital:</Text>
@@ -64,4 +64,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CountryInfo;
+export default CountryInfo; 

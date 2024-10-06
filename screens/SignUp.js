@@ -8,8 +8,18 @@ import moment from 'moment';
 import { FontAwesome } from '@expo/vector-icons';
 import { gsap, Back } from 'gsap-rn';
 import { Ionicons } from '@expo/vector-icons';
+import { useQuery, gql } from '@apollo/client';
+import { Picker } from '@react-native-picker/picker';
 
-
+// Define GraphQL query to get countries
+const GET_COUNTRIES = gql`
+  query GetCountries {
+    countries {
+      code
+      name
+    }
+  }
+`;
 export default function SignUp({ navigation }) {
   const [yourName, setYourName] = useState('');
   const [userName, setUserName] = useState('');
@@ -28,7 +38,7 @@ export default function SignUp({ navigation }) {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const viewRef = useRef(null);
-
+  const { data, loading: countryLoading, error } = useQuery(GET_COUNTRIES);
   const userNameMessages = [
     ["This is a unique Username", 'green'],
     ["The Username has already been taken.", 'red'],
@@ -184,7 +194,7 @@ export default function SignUp({ navigation }) {
           placeholder="First and Last Name"
           placeholderTextColor="#aaaaaa"
           onChangeText={(text) => {
-          setYourName(text.trim())
+          setYourName(text);
           }}
           value={yourName}
           underlineColorAndroid="transparent"
@@ -244,15 +254,19 @@ export default function SignUp({ navigation }) {
             </TouchableOpacity>
           </View>
         }
-        <TextInput
-          style={styles.input}
-          placeholder='Country' // New field for country
-          placeholderTextColor="#aaaaaa"
-          onChangeText={(text) => setCountry(text.trim())} // Set the country state
-          value={country}
-          underlineColorAndroid="transparent"
-          autoCapitalize="none"
-        />
+        <View style={styles.pickerContainer}>
+  <Picker
+    selectedValue={country}
+    style={styles.picker} // Custom style for the picker dropdown
+    onValueChange={(itemValue) => setCountry(itemValue)}
+    mode="dropdown" // Optional: use dropdown mode for a better appearance
+  >
+    <Picker.Item label="Select your country" value="" />
+    {!countryLoading && data && data.countries.map((country) => (
+      <Picker.Item key={country.code} label={country.name} value={country.name} />
+    ))}
+  </Picker>
+</View>
         {showMultipleTextBox &&
           <TouchableOpacity
             style={styles.birthdayPicker}
@@ -308,6 +322,7 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         padding: 10,
         
+        
   },
   logo: {
     alignSelf: 'center',
@@ -332,6 +347,19 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     paddingHorizontal: 10,
      backgroundColor: '#fff',
+  },
+  pickerContainer: {
+    borderColor: 'gray',
+    borderWidth: 1, 
+    borderRadius: 8,
+    justifyContent: 'right', // Center the picker text
+    marginBottom: 20,
+    backgroundColor: '#fff', // Matches the input fields
+  },
+  picker: {
+    width: '100%',
+    height: 50, 
+    color: '#000', // Text color for the picker items
   },
   birthdayPicker: {
     height: 48,
