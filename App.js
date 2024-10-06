@@ -9,6 +9,7 @@ import AboutUs from './screens/AboutUs';
 import LoginScreen from './screens/LogIn';
 import { ApolloClient, InMemoryCache, ApolloProvider, gql } from '@apollo/client';
 import CountryInfo from './screens/CountryInfo';
+import MovieDetailScreen from './screens/MovieDetailScreen';
 
 const client = new ApolloClient({
   uri: 'https://countries.trevorblades.com/graphql',
@@ -29,6 +30,7 @@ export default function App() {
         <Stack.Screen name="AboutUs" component={AboutUs} options={{ headerShown: false }} />
         <Stack.Screen name="SignUp" component={SignUp} options={{ headerShown: false }} />
         <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+        <Stack.Screen name="MovieDetail" component={MovieDetailScreen} options={{ title: 'Movie Details' }} />
         <Stack.Screen name="ViewPosts" component={ViewPosts} options={{ headerShown: false }} />
         <Stack.Screen name='CountryInfo' component={CountryInfo}></Stack.Screen>
       </Stack.Navigator>
