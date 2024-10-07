@@ -318,7 +318,7 @@ const styles = StyleSheet.create({
     color: '#7f8c8d',
   },
   mapContainer: {
-    backgroundColor: '#fff',
+    backgroundColor: '#02ADAD',
     marginVertical: 20,
     padding: 15,
     borderColor: '#dfe6e9', // Light border for clarity
@@ -335,10 +335,10 @@ const styles = StyleSheet.create({
   },
   videoContainer: {
     marginBottom: 25,
-    backgroundColor: '#fff',
+    backgroundColor: '#02ADAD',
     padding: 10,
     borderRadius: 10,
-    shadowColor: '#000',
+    shadowColor: '#02ADAD',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
   reviewContainer: {
     marginTop: 20,
     alignItems: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: '#02ADAD',
     padding: 15,
     borderRadius: 10,
     shadowColor: '#000',
@@ -372,7 +372,7 @@ const styles = StyleSheet.create({
   },
   reviewInput: {
     height: 100,
-    borderColor: '#dfe6e9',
+    borderColor: '#02ADAD',
     borderWidth: 1,
     borderRadius: 10, // Rounder input box
     padding: 10,
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
   },
   reviewsContainer: {
     marginTop: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#02ADAD',
     padding: 15,
     borderRadius: 10,
     shadowColor: '#000',
@@ -401,7 +401,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 5,
-    color: '#e74c3c', // Red to highlight user names
+    color: '#454544 ', // Red to highlight user names
   },
   reviewText: {
     fontSize: 14,

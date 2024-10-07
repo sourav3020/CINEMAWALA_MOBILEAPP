@@ -256,7 +256,10 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
-    backgroundColor:"#0bc0ed"
+    backgroundColor:"#02ADAD",
+    borderRadius:5,
+    borderWidth: 2,
+    padding:5,
   },
   profileContainer: {//cobi nicer outlook er jonno
     width: '100%',
@@ -267,11 +270,11 @@ const styles = StyleSheet.create({
   inputBox: {
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: '#0bc0ed',
+    borderColor: '#02ADAD',
     borderRadius: 5,
     padding: 10,
     width: '100%',
-    backgroundcolor:"#0bc0ed",
+    backgroundcolor:"#02ADAD",
   },
   label: {
     fontWeight: 'bold',
@@ -295,13 +298,13 @@ const styles = StyleSheet.create({
     },
     
   editButton: {
-    backgroundColor: 'blue',
+    backgroundColor: '#02ADAD',
     padding: 10,
     borderRadius: 5,
     marginBottom: 15,
   },
   saveButton: {
-    backgroundColor: '#00cc00',
+    backgroundColor: '#02ADAD',
     padding: 10,
     borderRadius: 5,
     marginBottom: 15,

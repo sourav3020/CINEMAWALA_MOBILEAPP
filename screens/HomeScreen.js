@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { View, Text, StatusBar, TextInput, TouchableOpacity, ScrollView, Image, ActivityIndicator, Alert } from "react-native";
+import { View, Text, StatusBar, TextInput, TouchableOpacity, Image, ActivityIndicator, Alert, StyleSheet, FlatList,ScrollView } from "react-native";
 
 // Constants
 const BASE_URL = "https://api.themoviedb.org/3/";
@@ -10,24 +10,6 @@ const PLACEHOLDER = "Enter movie title...";
 const SEARCH_BUTTON = "Search";
 const NO_DATA_MSG = "No data found.";
 const MOVIES_PER_PAGE = 3; // Movies per page
-
-// Styles
-const styles = {
-  container: { flex: 1, padding: 10, backgroundColor: '#f0f0f0' },
-  cardView: { padding: 10, backgroundColor: '#fff', borderRadius: 8, marginBottom: 10 },
-  input: { borderBottomWidth: 1, borderColor: '#ccc', padding: 8 },
-  buttonContainer: { backgroundColor: '#02ADAD', padding: 10, borderRadius: 5, marginTop: 10 },
-  buttonText: { color: '#fff', textAlign: 'center', fontSize: 16 },
-  movieList: { marginTop: 10 },
-  movieItem: { flexDirection: 'row', marginBottom: 10 },
-  movieImage: { width: 100, height: 150, marginRight: 10 },
-  movieDetails: { flex: 1 },
-  movieTitle: { fontSize: 16, fontWeight: 'bold' },
-  movieText: { color: '#555' },
-  pagination: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 20 },
-  paginationButton: { backgroundColor: '#02ADAD', padding: 10, borderRadius: 5 },
-  paginationButtonText: { color: '#fff', fontSize: 14 },
-};
 
 // Fetching helper function
 const callRemoteMethod = async (endpoint, callback) => {
@@ -43,7 +25,7 @@ const callRemoteMethod = async (endpoint, callback) => {
 class HomeScreen extends Component {
   state = {
     movieList: [],
-    searchText: "",
+    searchText:   "",
     isLoading: false,
     noData: false,
     currentPage: 1, // Track the current page
@@ -84,6 +66,23 @@ class HomeScreen extends Component {
     this.props.navigation.navigate("MovieDetail", { movie });
   };
 
+  renderMovieItem = ({ item }) => (
+    <TouchableOpacity onPress={() => this.goToDetails(item)} style={styles.movieItem}>
+      <Image
+        source={{
+          uri: item.poster_path ? `${IMAGE_URL}${item.poster_path}` : PLACEHOLDER_IMAGE,
+        }}
+        style={styles.movieImage}
+      />
+      <View style={styles.movieDetails}>
+        <Text style={styles.movieTitle}>{item.original_title}</Text>
+        <Text style={styles.movieText}>Release Date: {item.release_date}</Text>
+        <Text style={styles.movieText}>Language: {item.original_language}</Text>
+        <Text style={styles.movieText}>Popularity: {item.popularity} %</Text>
+      </View>
+    </TouchableOpacity>
+  );
+
   render() {
     const { movieList, isLoading, noData, currentPage } = this.state;
     const startIndex = (currentPage - 1) * MOVIES_PER_PAGE;
@@ -109,26 +108,12 @@ class HomeScreen extends Component {
 
         {noData && <Text style={{ textAlign: 'center' }}>{NO_DATA_MSG}</Text>}
 
-        <ScrollView style={styles.movieList}>
-          {paginatedMovies.map((movie, index) => (
-            <TouchableOpacity key={index} onPress={() => this.goToDetails(movie)} style={styles.movieItem}>
-              <Image
-                source={{
-                  uri: movie.poster_path
-                    ? `${IMAGE_URL}${movie.poster_path}`
-                    : PLACEHOLDER_IMAGE,
-                }}
-                style={styles.movieImage}
-              />
-              <View style={styles.movieDetails}>
-                <Text style={styles.movieTitle}>{movie.original_title}</Text>
-                <Text style={styles.movieText}>Release Date: {movie.release_date}</Text>
-                <Text style={styles.movieText}>Language: {movie.original_language}</Text>
-                <Text style={styles.movieText}>Popularity: {movie.popularity} %</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
-        </ScrollView>
+        <FlatList
+          data={paginatedMovies}
+          renderItem={this.renderMovieItem}
+          keyExtractor={(item, index) => index.toString()}
+          style={styles.movieList}
+        />
 
         {movieList.length > MOVIES_PER_PAGE && (
           <View style={styles.pagination}>
@@ -154,3 +139,70 @@ class HomeScreen extends Component {
 }
 
 export default HomeScreen;
+
+// Styles
+const styles = StyleSheet.create({
+  container: { 
+    flex: 1, 
+    padding: 10, 
+    backgroundColor: '#f0f0f0' 
+  },
+  cardView: { 
+    padding: 10, 
+    backgroundColor: '#fff', 
+    borderRadius: 8, 
+    marginBottom: 10 
+  },
+  input: { 
+    borderBottomWidth: 1, 
+    borderColor: '#ccc', 
+    padding: 8 
+  },
+  buttonContainer: { 
+    backgroundColor: '#02ADAD', 
+    padding: 10, 
+    borderRadius: 5, 
+    marginTop: 10 
+  },
+  buttonText: { 
+    color: '#fff', 
+    textAlign: 'center', 
+    fontSize: 16 
+  },
+  movieList: { 
+    marginTop: 10 
+  },
+  movieItem: { 
+    flexDirection: 'row', 
+    marginBottom: 10 
+  },
+  movieImage: { 
+    width: 100, 
+    height: 150, 
+    marginRight: 10 
+  },
+  movieDetails: { 
+    flex: 1 
+  },
+  movieTitle: { 
+    fontSize: 16, 
+    fontWeight: 'bold' 
+  },
+  movieText: { 
+    color: '#555' 
+  },
+  pagination: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    marginTop: 20 
+  },
+  paginationButton: { 
+    backgroundColor: '#02ADAD', 
+    padding: 10, 
+    borderRadius: 5 
+  },
+  paginationButtonText: { 
+    color: '#fff', 
+    fontSize: 14 
+  },
+});

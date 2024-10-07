@@ -13,11 +13,11 @@ const SettingsScreen = ({ navigation }) => {
     setDarkModeEnabled(colorScheme === 'dark');
   }, [colorScheme]);
 
-  const onToggleDarkMode = () => {
-    const newMode = !darkModeEnabled;
-    setDarkModeEnabled(newMode);
+  //const onToggleDarkMode = () => {
+    //const newMode = !darkModeEnabled;
+    //setDarkModeEnabled(newMode);
     // Save the new mode to AsyncStorage or your preferred storage
-  };
+ // };
 
   const onSignOutPress = async () => {
     try {
@@ -29,9 +29,9 @@ const SettingsScreen = ({ navigation }) => {
     }
   };
 
-  const handleGraphQl = () => {
-    navigation.navigate('CountryInfo');
-  };
+  //const handleGraphQl = () => {
+   // navigation.navigate('CountryInfo');
+  //};
 
 
   return (
@@ -51,9 +51,9 @@ const SettingsScreen = ({ navigation }) => {
       </View> */}
 
       {/* GraphQL Button */}
-      <TouchableOpacity onPress={handleGraphQl} style={styles.button}>
+      {/* <TouchableOpacity onPress={handleGraphQl} style={styles.button}>
           <Text>Graphql</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
 
 
       {/* Logout Button */}
@@ -71,31 +71,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
+    backgroundColor:'#02ADAD',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
   },
-  setting: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 20,
-    width: '100%',
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-  },
-  settingText: {
-    fontSize: 18
-    ,
-  },
+  
   button: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#0066cc',
+    backgroundColor:'#02ADAD',
     paddingVertical: 15,
     paddingHorizontal: 20,
     borderRadius: 10,
