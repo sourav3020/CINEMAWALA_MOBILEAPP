@@ -35,10 +35,10 @@ const AppNavigator = () => {
         tabBarStyle: { backgroundColor: darkModeEnabled ? '#222' : '#fff', borderTopWidth: 0 },
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} initialParams={{ darkModeEnabled }} />
-      <Tab.Screen name="Profile" component={ProfileScreen} initialParams={{ darkModeEnabled }} />
-      <Tab.Screen name="Settings" component={SettingsScreen} initialParams={{ darkModeEnabled }} />
-      <Tab.Screen name="AboutUs" component={AboutUs} initialParams={{ darkModeEnabled }} />
+      <Tab.Screen name="Home" component={HomeScreen}  />
+      <Tab.Screen name="Profile" component={ProfileScreen}  />
+      <Tab.Screen name="Settings" component={SettingsScreen}  />
+      <Tab.Screen name="AboutUs" component={AboutUs} />
     </Tab.Navigator>
   );
 };

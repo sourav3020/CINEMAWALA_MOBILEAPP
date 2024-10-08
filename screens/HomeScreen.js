@@ -1,7 +1,7 @@
-import React, { Component } from "react";
-import { View, Text, StatusBar, TextInput, TouchableOpacity, Image, ActivityIndicator, Alert, StyleSheet, FlatList,ScrollView } from "react-native";
+import React, { useState, useEffect, useCallback } from "react";
+import { View, Text, StatusBar, TextInput, TouchableOpacity, Image, ActivityIndicator, Alert, StyleSheet, FlatList } from "react-native";
 
-// Constants
+
 const BASE_URL = "https://api.themoviedb.org/3/";
 const API_KEY = "api_key=151dfa1b4c6a83a02970c0c6612615b3";
 const IMAGE_URL = "http://image.tmdb.org/t/p/w185";
@@ -9,9 +9,11 @@ const PLACEHOLDER_IMAGE = "https://s3-ap-southeast-1.amazonaws.com/popcornsg/pla
 const PLACEHOLDER = "Enter movie title...";
 const SEARCH_BUTTON = "Search";
 const NO_DATA_MSG = "No data found.";
-const MOVIES_PER_PAGE = 3; // Movies per page
+const MOVIES_PER_PAGE = 5;
+const DEBOUNCE_DELAY = 500; 
 
-// Fetching helper function
+
+
 const callRemoteMethod = async (endpoint, callback) => {
   try {
     const response = await fetch(endpoint);
@@ -22,52 +24,92 @@ const callRemoteMethod = async (endpoint, callback) => {
   }
 };
 
-class HomeScreen extends Component {
-  state = {
-    movieList: [],
-    searchText:   "",
-    isLoading: false,
-    noData: false,
-    currentPage: 1, // Track the current page
+const debounce = (func, delay) => {
+  let timeoutId;
+  return (...args) => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+    timeoutId = setTimeout(() => {
+      func(...args);
+    }, delay);
+  };
+};
+
+const HomeScreen = ({ navigation }) => {
+  const [movieList, setMovieList] = useState([]);
+  const [searchText, setSearchText] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [noData, setNoData] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+
+   //defult page
+  useEffect(() => { 
+    const defaultEndpoint = `${BASE_URL}movie/popular?${API_KEY}`;
+    setIsLoading(true);
+    callRemoteMethod(defaultEndpoint, defaultMoviesCallback);
+  }, []);
+
+  const defaultMoviesCallback = (response) => {
+    if (response.results && response.results.length) {
+      setMovieList(response.results);
+      setNoData(false);
+      setIsLoading(false);
+    } else {
+      setMovieList([]);
+      setNoData(true);
+      setIsLoading(false);
+    }
   };
 
-  searchMovies = () => {
-    const { searchText } = this.state;
+  const searchMovies = () => {
     if (searchText.length) {
       const endpoint = `${BASE_URL}search/movie?query=${searchText}&${API_KEY}`;
-      this.setState({ isLoading: true });
-      callRemoteMethod(endpoint, this.searchCallback);
+      setIsLoading(true);
+      callRemoteMethod(endpoint, searchCallback);
     } else {
-      Alert.alert("Validation", "Search field is required.");
+      const defaultEndpoint = `${BASE_URL}movie/popular?${API_KEY}`;
+      setIsLoading(true);
+      callRemoteMethod(defaultEndpoint, defaultMoviesCallback);
     }
   };
 
-  searchCallback = (response) => {
+  const searchCallback = (response) => {
     if (response.results && response.results.length) {
-      this.setState({ movieList: response.results, noData: false, isLoading: false, currentPage: 1 });
+      setMovieList(response.results);
+      setNoData(false);
+      setIsLoading(false);
+      setCurrentPage(1);
     } else {
-      this.setState({ movieList: [], noData: true, isLoading: false });
+      setMovieList([]);
+      setNoData(true);
+      setIsLoading(false);
     }
   };
 
-  // Handle Previous and Next pagination
-  handlePagination = (direction) => {
-    const { currentPage, movieList } = this.state;
+  
+  const debouncedSearch = useCallback(
+    debounce(() => {
+      searchMovies();
+    }, DEBOUNCE_DELAY),
+    [searchText]
+  );
+
+  const handlePagination = (direction) => {
     const totalPages = Math.ceil(movieList.length / MOVIES_PER_PAGE);
-
     if (direction === "next" && currentPage < totalPages) {
-      this.setState({ currentPage: currentPage + 1 });
+      setCurrentPage(currentPage + 1);
     } else if (direction === "prev" && currentPage > 1) {
-      this.setState({ currentPage: currentPage - 1 });
+      setCurrentPage(currentPage - 1);
     }
   };
 
-  goToDetails = (movie) => {
-    this.props.navigation.navigate("MovieDetail", { movie });
+  const goToDetails = (movie) => {
+    navigation.navigate("MovieDetail", { movie });
   };
 
-  renderMovieItem = ({ item }) => (
-    <TouchableOpacity onPress={() => this.goToDetails(item)} style={styles.movieItem}>
+  const renderMovieItem = ({ item }) => (
+    <TouchableOpacity onPress={() => goToDetails(item)} style={styles.movieItem}>
       <Image
         source={{
           uri: item.poster_path ? `${IMAGE_URL}${item.poster_path}` : PLACEHOLDER_IMAGE,
@@ -83,126 +125,72 @@ class HomeScreen extends Component {
     </TouchableOpacity>
   );
 
-  render() {
-    const { movieList, isLoading, noData, currentPage } = this.state;
-    const startIndex = (currentPage - 1) * MOVIES_PER_PAGE;
-    const paginatedMovies = movieList.slice(startIndex, startIndex + MOVIES_PER_PAGE);
-    const totalPages = Math.ceil(movieList.length / MOVIES_PER_PAGE);
+  const startIndex = (currentPage - 1) * MOVIES_PER_PAGE;
+  const paginatedMovies = movieList.slice(startIndex, startIndex + MOVIES_PER_PAGE);
+  const totalPages = Math.ceil(movieList.length / MOVIES_PER_PAGE);
 
-    return (
-      <View style={styles.container}>
-        <StatusBar backgroundColor="#02ADAD" barStyle="light-content" />
+  return (
+    <View style={styles.container}>
+      <StatusBar backgroundColor="#02ADAD" barStyle="light-content" />
 
-        <View style={styles.cardView}>
-          <TextInput
-            style={styles.input}
-            placeholder={PLACEHOLDER}
-            onChangeText={(text) => this.setState({ searchText: text })}
-          />
-          <TouchableOpacity style={styles.buttonContainer} onPress={this.searchMovies}>
-            <Text style={styles.buttonText}>{SEARCH_BUTTON}</Text>
+      <View style={styles.cardView}>
+        <TextInput
+          style={styles.input}
+          placeholder={PLACEHOLDER}
+          onChangeText={(text) => {
+            setSearchText(text);
+            debouncedSearch(); // Trigger the debounced search
+          }}
+          value={searchText}
+        />
+      </View>
+
+      {isLoading && <ActivityIndicator size="large" color="#02ADAD" />}
+
+      {noData && <Text style={{ textAlign: 'center' }}>{NO_DATA_MSG}</Text>}
+
+      <FlatList
+        data={paginatedMovies}
+        renderItem={renderMovieItem}
+        keyExtractor={(item, index) => index.toString()}
+        style={styles.movieList}
+      />
+
+      {movieList.length > MOVIES_PER_PAGE && (
+        <View style={styles.pagination}>
+          <TouchableOpacity
+            style={styles.paginationButton}
+            onPress={() => handlePagination("prev")}
+            disabled={currentPage === 1}
+          >
+            <Text style={styles.paginationButtonText}>Previous</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.paginationButton}
+            onPress={() => handlePagination("next")}
+            disabled={currentPage === totalPages}
+          >
+            <Text style={styles.paginationButtonText}>Next</Text>
           </TouchableOpacity>
         </View>
+      )}
+    </View>
+  );
+};
 
-        {isLoading && <ActivityIndicator size="large" color="#02ADAD" />}
-
-        {noData && <Text style={{ textAlign: 'center' }}>{NO_DATA_MSG}</Text>}
-
-        <FlatList
-          data={paginatedMovies}
-          renderItem={this.renderMovieItem}
-          keyExtractor={(item, index) => index.toString()}
-          style={styles.movieList}
-        />
-
-        {movieList.length > MOVIES_PER_PAGE && (
-          <View style={styles.pagination}>
-            <TouchableOpacity
-              style={styles.paginationButton}
-              onPress={() => this.handlePagination("prev")}
-              disabled={currentPage === 1}
-            >
-              <Text style={styles.paginationButtonText}>Previous</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={styles.paginationButton}
-              onPress={() => this.handlePagination("next")}
-              disabled={currentPage === totalPages}
-            >
-              <Text style={styles.paginationButtonText}>Next</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      </View>
-    );
-  }
-}
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#fff" },
+  cardView: { flexDirection: "row", padding: 10 },
+  input: { flex: 1, borderColor: "#ccc", borderWidth: 1, padding: 10, borderRadius: 5 },
+  movieList: { paddingHorizontal: 10, marginTop: 10 },
+  movieItem: { flexDirection: "row", marginBottom: 15 },
+  movieImage: { width: 100, height: 150 },
+  movieDetails: { marginLeft: 10, flex: 1 },
+  movieTitle: { fontWeight: "bold", fontSize: 16 },
+  movieText: { fontSize: 14, color: "#666" },
+  pagination: { flexDirection: "row", justifyContent: "space-between", padding: 20 },
+  paginationButton: { padding: 10, backgroundColor: "#02ADAD", borderRadius: 5 },
+  paginationButtonText: { color: "#fff" },
+});
 
 export default HomeScreen;
-
-// Styles
-const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    padding: 10, 
-    backgroundColor: '#f0f0f0' 
-  },
-  cardView: { 
-    padding: 10, 
-    backgroundColor: '#fff', 
-    borderRadius: 8, 
-    marginBottom: 10 
-  },
-  input: { 
-    borderBottomWidth: 1, 
-    borderColor: '#ccc', 
-    padding: 8 
-  },
-  buttonContainer: { 
-    backgroundColor: '#02ADAD', 
-    padding: 10, 
-    borderRadius: 5, 
-    marginTop: 10 
-  },
-  buttonText: { 
-    color: '#fff', 
-    textAlign: 'center', 
-    fontSize: 16 
-  },
-  movieList: { 
-    marginTop: 10 
-  },
-  movieItem: { 
-    flexDirection: 'row', 
-    marginBottom: 10 
-  },
-  movieImage: { 
-    width: 100, 
-    height: 150, 
-    marginRight: 10 
-  },
-  movieDetails: { 
-    flex: 1 
-  },
-  movieTitle: { 
-    fontSize: 16, 
-    fontWeight: 'bold' 
-  },
-  movieText: { 
-    color: '#555' 
-  },
-  pagination: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    marginTop: 20 
-  },
-  paginationButton: { 
-    backgroundColor: '#02ADAD', 
-    padding: 10, 
-    borderRadius: 5 
-  },
-  paginationButtonText: { 
-    color: '#fff', 
-    fontSize: 14 
-  },
-});

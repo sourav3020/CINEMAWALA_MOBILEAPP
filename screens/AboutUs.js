@@ -53,7 +53,7 @@ const AboutUs = () => {
       });
       const averageRating = reviewsData.length > 0 ?( totalRatings / reviewsData.length) : 0;
 
-      // Update state
+      
       setReviews(reviewsData);
       setTotalRatings(totalRatings);
       setAverageRating(averageRating);
@@ -80,7 +80,7 @@ const AboutUs = () => {
   }, []);
 
 
-  const reviewedStar = (star)=>{
+  const reviewedStar = (star)=>{ //not done
     const starTag = []
     for(let i=0;i<star;i++){
       starTag.push(i+1)
@@ -89,7 +89,7 @@ const AboutUs = () => {
 
   }
 
-  const openLink = (url) => {
+  const openLink = (url) => { // not done
     Linking.openURL(url);
   };
 
@@ -106,7 +106,7 @@ const AboutUs = () => {
         const querySnapshot = await getDocs(q);
         querySnapshot.forEach((doc) => {
             const userData = doc.data();
-            // console.log(userData)
+            
             const { userName, user_id, email, dp_url } = userData;
             const loggedUserInfo = {
                 userRef: user_id,
@@ -160,21 +160,21 @@ const AboutUs = () => {
   return (
     <View style={styles.container}>
       <ScrollView style={{ backgroundColor: '#fff', height: '100%' }} showsVerticalScrollIndicator={false}>
-         {/* Display logo with gsap*/}
+         
         <Image
            ref={viewRef}
           style={styles.logo}
           source={require('../assets/L2.png')}
         />
-        {/* <Text style={styles.heading}>Cinemawala </Text> */}
+        
 
-          {/* Display Introduction */}
+          
           <Text style={styles.subHeading}>About Us</Text>
         <Text style={styles.paragraph}>
         Cinemawala is your go-to app for honest and insightful movie reviews. We help you discover the best films, powered by a community of passionate movie lovers.
         </Text>
 
-           {/* Display Contact Information */}
+          
            <Text style={styles.subHeading}>Contact Information</Text>
         <Text style={styles.paragraph}>
           Email: souravtalukdar2017@gmail.com{'\n'}
@@ -185,7 +185,7 @@ const AboutUs = () => {
 
         
 
-        {/* Display Location on Map */}
+        
         <View style={styles.mapContainer}>
           <Text style={styles.subHeading}>Location</Text>
           {userLocation && (
@@ -205,7 +205,7 @@ const AboutUs = () => {
             </MapView>
           )}
         </View>
-        {/* Display YouTube Video */}
+        
         <View style={styles.videoContainer}>
           <Text style={styles.subHeading}>YouTube Video</Text>
           <WebView
@@ -220,17 +220,6 @@ const AboutUs = () => {
      
 
 
-        {/* Display Ratings and Reviews */}
-        {/* <View style={styles.ratingContainer}>
-          <Text style={styles.subHeading}>Ratings</Text>
-          <Text>Total Rating Users: {totalRatingUsers}</Text>
-          <Text>Total Ratings: {totalRatings}</Text>
-          
-          <Text>Average Rating: {averageRating.toFixed(2)}</Text>
-
-        </View> */}
-
-        {/* Leave a Review */}
         <View style={styles.reviewContainer}>
           <Text style={styles.subHeading}>Leave a Review</Text>
           <View style={styles.starsContainer}>
@@ -258,7 +247,7 @@ const AboutUs = () => {
           <Button title={(userAlreadyReviewed ?"Update " : "Submit ") + "Rating & Review"} onPress={submitRatingAndReview} />
         </View>
 
-        {/* Display existing reviews */}
+        
         <View style={styles.reviewsContainer}>
           <Text style={styles.subHeading}>User Reviews</Text>
           {}
@@ -267,7 +256,7 @@ const AboutUs = () => {
             return (
             <View key={index} style={styles.reviewItem}>
               <Text style={[styles.reviewRating, {fontSize:18,color:'red'}]}>{review.userName}</Text>
-              {/* <Text style={styles.reviewRating}>{`${review.rating} stars`}</Text> */}
+              
               <View style={[styles.starsContainer]}>
                 {reviewedStar(review.rating).map((item)=> ( <FontAwesome key={item} name={"star"} size={15} color={"#FFD700"} style={{marginRight:2}} />))}
                 {reviewedStar(5-review.rating).map((item)=> ( <FontAwesome key={item} name={"star-o"} size={15} color={"#FFD700"} style={{marginRight:2}} />))}

@@ -3,6 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, Alert, FlatList, Image, StyleS
 import { firestore } from '../config'; // Ensure you import firestore
 import { collection, query, where, getDocs, setDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Animatable from 'react-native-animatable';
 
 const IMAGE_URL = "http://image.tmdb.org/t/p/w185";
 const PLACEHOLDER_IMAGE = "https://s3-ap-southeast-1.amazonaws.com/popcornsg/placeholder-movieimage.png";
@@ -112,26 +113,23 @@ const MovieDetailScreen = ({ route }) => {
         try {
             const movieDocRef = doc(firestore, 'movies', movie.id.toString());
 
-            // Check if the document exists
             const movieDoc = await getDoc(movieDocRef);
             if (!movieDoc.exists()) {
-                // If it doesn't exist, create the movie document with initial data
                 const movieData = {
                     id: movie.id,
                     title: movie.original_title,
                     release_date: movie.release_date,
                     overview: movie.overview,
                     poster_path: movie.poster_path,
-                    likes: 1, // Initially setting the like to 1
+                    likes: 1,
                     dislikes: 0,
                 };
                 await setDoc(movieDocRef, movieData);
-                setLikes(1); // Update local state
+                setLikes(1);
                 setUserReaction('like');
                 return;
             }
 
-            // Document exists, proceed with updating likes
             if (userReaction === 'like') {
                 Alert.alert('You already liked this movie');
                 return;
@@ -159,10 +157,8 @@ const MovieDetailScreen = ({ route }) => {
         try {
             const movieDocRef = doc(firestore, 'movies', movie.id.toString());
 
-            // Check if the document exists
             const movieDoc = await getDoc(movieDocRef);
             if (!movieDoc.exists()) {
-                // If it doesn't exist, create the movie document with initial data
                 const movieData = {
                     id: movie.id,
                     title: movie.original_title,
@@ -170,15 +166,14 @@ const MovieDetailScreen = ({ route }) => {
                     overview: movie.overview,
                     poster_path: movie.poster_path,
                     likes: 0,
-                    dislikes: 1, // Initially setting the dislike to 1
+                    dislikes: 1,
                 };
                 await setDoc(movieDocRef, movieData);
-                setDislikes(1); // Update local state
+                setDislikes(1);
                 setUserReaction('dislike');
                 return;
             }
 
-            // Document exists, proceed with updating dislikes
             if (userReaction === 'dislike') {
                 Alert.alert('You already disliked this movie');
                 return;
@@ -203,64 +198,66 @@ const MovieDetailScreen = ({ route }) => {
     };
 
     const renderReviewItem = ({ item }) => (
-        <View style={styles.reviewItem}>
+        <Animatable.View animation="fadeInDown" duration={500} style={styles.reviewItem}>
             <Text style={{ fontWeight: 'bold' }}>{item.userName}:</Text>
             <Text>{item.review}</Text>
-        </View>
+        </Animatable.View>
     );
 
     return (
         <ScrollView style={styles.container}>
-            <Image
+            <Animatable.Image
                 source={{
                     uri: movie.poster_path
                         ? `${IMAGE_URL}${movie.poster_path}`
                         : PLACEHOLDER_IMAGE,
                 }}
                 style={styles.movieImage}
+                animation="fadeInDown"
+                delay={500} duration={1000}
             />
-            <Text style={styles.text}>
-                <Text style={{ fontWeight: 'bold' }}>Title:</Text> {movie.original_title}
-            </Text>
-            <Text style={styles.text}>
-                <Text style={{ fontWeight: 'bold' }}>Release Date:</Text> {movie.release_date}
-            </Text>
-            <Text style={styles.text}>
-                <Text style={{ fontWeight: 'bold' }}>Overview:</Text> {movie.overview}
-            </Text>
+            <Animatable.View animation="fadeInLeft" delay={500} duration={1000}>
+                <Text style={styles.text}>
+                    <Text style={{ fontWeight: 'bold' }}>Title:</Text> {movie.original_title}
+                </Text>
+                <Text style={styles.text}>
+                    <Text style={{ fontWeight: 'bold' }}>Release Date:</Text> {movie.release_date}
+                </Text>
+                <Text style={styles.text}>
+                    <Text style={{ fontWeight: 'bold' }}>Overview:</Text> {movie.overview}
+                </Text>
+            </Animatable.View>
 
-            <View style={styles.likeButton}>
+            <Animatable.View animation="fadeIn" duration={500} style={styles.likeButton}>
                 <TouchableOpacity onPress={handleLike}>
                     <Text style={styles.buttonText}>👍 Like</Text>
                 </TouchableOpacity>
                 <Text style={styles.likeText}>{likes}</Text>
-            </View>
-            <View style={styles.likeButton}>
+            </Animatable.View>
+            <Animatable.View animation="fadeIn" duration={500} style={styles.likeButton}>
                 <TouchableOpacity onPress={handleDislike}>
                     <Text style={styles.buttonText}>👎 Dislike</Text>
                 </TouchableOpacity>
                 <Text style={styles.likeText}>{dislikes}</Text>
-            </View>
+            </Animatable.View>
 
-            <TextInput
-                style={styles.input}
-                placeholder="Write your review here..."
-                value={reviewText}
-                onChangeText={setReviewText}
-                multiline
-            />
-            <TouchableOpacity style={styles.buttonContainer} onPress={postReview}>
-                <Text style={styles.buttonText}>Post Review</Text>
-            </TouchableOpacity>
-
-            <Text style={{ fontWeight: 'bold', marginTop: 20 }}>
-                Username: {userName || 'Guest'}
-            </Text>
+            <Animatable.View animation="fadeIn" duration={500}>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Write your review here..."
+                    value={reviewText}
+                    onChangeText={setReviewText}
+                    multiline
+                />
+                <TouchableOpacity style={styles.buttonContainer} onPress={postReview}>
+                    <Text style={styles.buttonText}>Post Review</Text>
+                </TouchableOpacity>
+            </Animatable.View>
 
             <FlatList
                 data={reviews}
                 renderItem={renderReviewItem}
-                keyExtractor={(item) => item.id.toString()}
+                keyExtractor={item => item.id}
                 contentContainerStyle={styles.reviewList}
             />
         </ScrollView>
@@ -269,50 +266,53 @@ const MovieDetailScreen = ({ route }) => {
 
 const styles = StyleSheet.create({
     container: {
-        padding: 20,
+        flex: 1,
+        padding: 10,
+        backgroundColor: '#fff',
     },
     movieImage: {
         width: '100%',
-        height: 400,
-        resizeMode: 'contain',
+        height: 450,
+        borderRadius: 10,
+        marginBottom: 10,
     },
     text: {
-        marginTop: 10,
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: '#ccc',
-        padding: 10,
-        marginVertical: 10,
-        borderRadius: 5,
-        minHeight: 100,
-    },
-    buttonContainer: {
-        backgroundColor: '#007bff',
-        padding: 10,
-        borderRadius: 5,
-        alignItems: 'center',
-    },
-    buttonText: {
-        color: '#fff',
-        fontWeight: 'bold',
+        fontSize: 16,
+        marginVertical: 5,
     },
     likeButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginTop: 10,
+        marginVertical: 10,
+    },
+    buttonText: {
+        fontSize: 18,
+        marginRight: 5,
     },
     likeText: {
-        marginLeft: 10,
+        fontSize: 18,
+        marginLeft: 5,
     },
-    reviewItem: {
+    input: {
+        borderWidth: 1,
+        borderColor: '#ccc',
+        borderRadius: 5,
+        padding: 10,
         marginVertical: 10,
-        borderBottomWidth: 1,
-        borderBottomColor: '#ccc',
-        paddingBottom: 10,
+    },
+    buttonContainer: {
+        backgroundColor: '#007BFF',
+        borderRadius: 5,
+        padding: 10,
+        alignItems: 'center',
     },
     reviewList: {
-        paddingVertical: 20,
+        paddingBottom: 20,
+    },
+    reviewItem: {
+        padding: 10,
+        borderBottomWidth: 1,
+        borderBottomColor: '#ccc',
     },
 });
 

@@ -7,7 +7,7 @@ import AppNavigator from './screens/AppNavigator';
 import AboutUs from './screens/AboutUs';
 import LoginScreen from './screens/LogIn';
 import { ApolloClient, InMemoryCache, ApolloProvider, gql } from '@apollo/client';
-import CountryInfo from './screens/CountryInfo';
+
 import MovieDetailScreen from './screens/MovieDetailScreen';
 
 const client = new ApolloClient({
@@ -31,7 +31,7 @@ export default function App() {
         <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
         <Stack.Screen name="MovieDetail" component={MovieDetailScreen} options={{ title: 'Movie Details' }} />
         
-        <Stack.Screen name='CountryInfo' component={CountryInfo}></Stack.Screen>
+        
       </Stack.Navigator>
     </NavigationContainer>
     </ApolloProvider>

@@ -14,9 +14,9 @@ const ProfileScreen = ({ navigation }) => {
   const [updatedName, setUpdatedName] = useState('');
   
 
-  const storageUrl = 'cinemawala-fd658.appspot.com'; // Firebase Storage URL
+  const storageUrl = 'cinemawala-fd658.appspot.com'; 
 
-  // Function to handle image picking
+  
   const handleImagePick = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
@@ -43,7 +43,7 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
 
-  // Function to upload the selected image to Firebase Storage
+  
   const uploadImageToFirebase = async (uri) => {
     setLoading(true);
     const fileName = `profileImages/${userData.userRef}.jpg`;
@@ -73,16 +73,15 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
 
-  // Function to update user profile picture in Firestore and AsyncStorage
   const updateProfilePicture = async (fileName) => {
     try {
       const updatedUserData = { ...userData, userProfilePic: fileName };
       setUserData(updatedUserData);
       
-      // Update Firestore
+      
       await updateDoc(doc(firestore, 'users', userData.userRef), { dp_url: fileName });
 
-      // Update AsyncStorage
+      
       await AsyncStorage.setItem('userData', JSON.stringify(updatedUserData));
 
       Alert.alert('Profile Information Updated');
@@ -92,7 +91,7 @@ const ProfileScreen = ({ navigation }) => {
     }
   };
 
-  // Function to update the user's name
+   
   const handleUpdateName = async () => {
     if (updatedName.trim() === '') {
       Alert.alert('Error', 'Name cannot be empty.');
@@ -103,55 +102,43 @@ const ProfileScreen = ({ navigation }) => {
       const updatedUserData = { ...userData, userName: updatedName };
       setUserData(updatedUserData);
 
-      // Update Firestore
+      
       await updateDoc(doc(firestore, 'users', userData.userRef), { userName: updatedName });
 
-      // Update AsyncStorage
+      
       await AsyncStorage.setItem('userData', JSON.stringify(updatedUserData));
 
       Alert.alert('Success', 'Name updated successfully!');
-      setIsEditing(false);  // Exit editing mode
+      setIsEditing(false);  
     } catch (error) {
       console.error('Error updating name in Firestore:', error);
       Alert.alert('Error', 'Failed to update name. Please try again.');
     }
   };
 
-  // Function to get image URL from Firebase Storage
-  const getImageUrlToShow = (image) => {
-    return `https://firebasestorage.googleapis.com/v0/b/${storageUrl}/o/${encodeURIComponent(image)}?alt=media`;
-  };
-
-  // Pre-fetch profile picture
-  const preFetchDP = (userProfilePic) => {
-    const imageRef = getImageUrlToShow(userProfilePic);
-    setImageUri(imageRef);
-  };
-  const onToggleDarkMode = () => {
-    const newMode = !darkModeEnabled;
-    setDarkModeEnabled(newMode);
-    // Save the new mode to AsyncStorage or your preferred storage
-  };
-   // Function to handle logout
+  
+  
+  
+   //logout
   const onSignOutPress = async () => {
     try {
-      await AsyncStorage.removeItem('userData'); // Clear user data from AsyncStorage
+      await AsyncStorage.removeItem('userData');
       await auth.signOut();
-      navigation.replace('LogIn'); // Navigate back to the login screen or wherever appropriate
+      navigation.replace('LogIn'); 
     } catch (error) {
       console.log('Error signing out:', error);
     }
   };
 
 
-  // Fetch user data from Firestore or AsyncStorage
+  
   useEffect(() => {
     const getUser = async () => {
       const storedUserData = await AsyncStorage.getItem('userData');
       if (storedUserData) {
         const user = JSON.parse(storedUserData);
         setUserData(user);
-        setUpdatedName(user.userName);  // Set the initial value of the name
+        setUpdatedName(user.userName);  
         preFetchDP(user.userProfilePic);
       } else {
         const usersRef = collection(firestore, 'users');
@@ -168,8 +155,8 @@ const ProfileScreen = ({ navigation }) => {
             birthday: data.birthday,
           };
           setUserData(user);
-          setUpdatedName(user.userName);  // Set the initial value of the name
-          preFetchDP(data.dp_url);
+          setUpdatedName(user.userName);  
+          
         });
       }
     };
@@ -191,7 +178,7 @@ const ProfileScreen = ({ navigation }) => {
             )}
           </TouchableOpacity>
 
-          {/* Name Input */}
+          
           <View style={styles.inputBox}>
             <Text style={styles.label}>User Name:</Text>
             <TextInput
@@ -202,7 +189,7 @@ const ProfileScreen = ({ navigation }) => {
             />
           </View>
 
-          {/* Toggle between editing and saving name */}
+          
           {isEditing ? (
             <TouchableOpacity style={styles.saveButton} onPress={handleUpdateName}>
               <Text style={styles.buttonText}>Save</Text>
@@ -213,7 +200,7 @@ const ProfileScreen = ({ navigation }) => {
             </TouchableOpacity>
           )}
 
-          {/* Other info */}
+          
           <View style={styles.inputBox}>
             <Text style={styles.label}>Email:</Text>
             <TextInput
@@ -231,7 +218,7 @@ const ProfileScreen = ({ navigation }) => {
             />
           </View>
           
-        {/* Logout Button */}
+        
         <TouchableOpacity style={styles.logoutButton} onPress={onSignOutPress}>
             <Text style={styles.buttonText}>Logout</Text>
           </TouchableOpacity>

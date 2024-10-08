@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react'; // <-- Added useRef
+import React, { useState, useEffect, useRef } from 'react'; 
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, ActivityIndicator, Alert, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { signInWithEmailAndPassword } from 'firebase/auth';
@@ -15,7 +15,7 @@ export default function LoginScreen({ navigation }) {
     const [errorMessage, setErrorMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const [isRememberMeChecked, setIsRememberMeChecked] = useState(false);
-    const viewRef = useRef(null);  // <-- Added useRef here
+    const viewRef = useRef(null);  
 
     const signIn = async () => {
         try {
@@ -78,16 +78,16 @@ export default function LoginScreen({ navigation }) {
 
     useEffect(() => {
         const view = viewRef.current;
-        if (view) {  // <-- Added this conditional check for safety
-            gsap.to(view, { duration: 1, rotate: 360, scale: 1, ease: Back.easeInOut });  // <-- Fixed the GSAP syntax
+        if (view) {  
+            gsap.to(view, { duration: 1, rotate: 360, scale: 1, ease: Back.easeInOut });  
         }
-    }, []);  // <-- Added useEffect to trigger GSAP on component mount
+    }, []);  
 
     return (
         <View style={styles.container}>
             <ScrollView style={{ backgroundColor: '#fff', height: '100%' }} showsVerticalScrollIndicator={false}>
                 <Image
-                    ref={viewRef}  // <-- Attached the ref to the Image
+                    ref={viewRef}  
                     style={styles.logo}
                     source={require('../assets/L2.png')}
                 />

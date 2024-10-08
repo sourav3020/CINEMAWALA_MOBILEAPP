@@ -11,7 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useQuery, gql } from '@apollo/client';
 import { Picker } from '@react-native-picker/picker';
 
-// Define GraphQL query to get countries
+ 
 const GET_COUNTRIES = gql`
   query GetCountries {
     countries {
@@ -120,19 +120,19 @@ export default function SignUp({ navigation }) {
     const usersRef = collection(firestore, 'users');
     try {
       const docRef = await addDoc(usersRef, {
-        "yourName": yourName, // Save user's name
+        "yourName": yourName,
         "userName": userName,
         "email": email,
-        "country": country, // Save user's country
+        "country": country,
         "dp_url": "images/avatar.jpg",
         "joiningDate": Timestamp.fromDate(new Date()),
         'birthday': birthDate,
-        "user_id": '' // This will be updated later
+        "user_id": '' 
         
         
       });
   
-      // Chain the update operation after the document is added
+      
       updateDoc(docRef, { "user_id": docRef.id }); 
     } catch (e) {
       console.log(e);
@@ -257,9 +257,9 @@ export default function SignUp({ navigation }) {
         <View style={styles.pickerContainer}>
   <Picker
     selectedValue={country}
-    style={styles.picker} // Custom style for the picker dropdown
+    style={styles.picker} 
     onValueChange={(itemValue) => setCountry(itemValue)}
-    mode="dropdown" // Optional: use dropdown mode for a better appearance
+    mode="dropdown" 
   >
     <Picker.Item label="Select your country" value="" />
     {!countryLoading && data && data.countries.map((country) => (
@@ -352,14 +352,14 @@ const styles = StyleSheet.create({
     borderColor: 'gray',
     borderWidth: 1, 
     borderRadius: 8,
-    justifyContent: 'right', // Center the picker text
+    justifyContent: 'right', 
     marginBottom: 20,
-    backgroundColor: '#fff', // Matches the input fields
+    backgroundColor: '#fff',
   },
   picker: {
     width: '100%',
     height: 50, 
-    color: '#000', // Text color for the picker items
+    color: '#000', 
   },
   birthdayPicker: {
     height: 48,
